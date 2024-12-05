@@ -1,29 +1,39 @@
-using Azure_Dio_App.Models;
+
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Extensions.Sql;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Azure_Dio_App
 {
-    public class Function1
+        
+    public class TransferValue
     {
-        [Function(nameof(Function1))]
+        private readonly ILogger<TransferValue> _logger;
+        private readonly HttpClient _httpClient;
+        public TransferValue(ILogger<TransferValue> logger, HttpClient httpClient)
+        {
+            _logger = logger;
+            _httpClient = httpClient;
+        }
+
+        [Function(nameof(TransferValue))]
         public static async Task<OutputType> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "PostFunction")] HttpRequestData req,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "Transaction")] HttpRequestData req,
             FunctionContext executionContext)
         {
             var logger = executionContext.GetLogger("PostToDo");
             logger.LogInformation("C# HTTP trigger function processed a request.");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            User user = JsonConvert.DeserializeObject<User>(requestBody);
-           
+            TransferValue transferValue = JsonConvert.DeserializeObject<TransferValue>(requestBody);
+
 
             return new OutputType()
             {
-                user = user,
+                transfer = transferValue,
                 HttpResponse = req.CreateResponse(System.Net.HttpStatusCode.Created)
             };
         }
@@ -33,7 +43,7 @@ namespace Azure_Dio_App
     public class OutputType
     {
         [SqlOutput("dbo.usuarios", connectionStringSetting: "SqlConnectionString")]
-        public User user { get; set; }
+        public TransferValue transfer { get; set; }
 
         public HttpResponseData HttpResponse { get; set; }
     }
