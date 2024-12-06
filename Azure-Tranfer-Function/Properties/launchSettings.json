@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "Azure_Tranfer_Function": {
-      "commandName": "Project",
-      "commandLineArgs": "--port 7165",
-      "launchBrowser": false
-    }
-  }
-}
